@@ -17,4 +17,6 @@ interface TracksLocalSource {
 
     fun getTracksFromLocalDb(): List<TrackEntity>
 
+    fun deleteTrackFromLocalDb(trackId: Long)
+
 }

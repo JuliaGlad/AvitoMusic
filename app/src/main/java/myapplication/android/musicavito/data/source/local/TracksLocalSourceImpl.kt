@@ -26,4 +26,8 @@ class TracksLocalSourceImpl @Inject constructor(): TracksLocalSource {
     override fun getLocalTracksId(): List<Long> = TracksProvider().getTrackIds()
 
     override fun getTracksFromLocalDb(): List<TrackEntity> = TracksProvider().getTracks()
+
+    override fun deleteTrackFromLocalDb(trackId: Long) {
+        TracksProvider().deleteTrack(trackId)
+    }
 }

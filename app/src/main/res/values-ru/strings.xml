@@ -7,4 +7,5 @@
     <string name="nothing_found_for">Ничего не найдено по запросу:</string>
     <string name="nothing_found">Ничего не найдено </string>
     <string name="looks_like_you_dont_have_any_tracks_yet">У вас пока что нет скачанных треков!</string>
+    <string name="was_successfully_deleted">был удален</string>
 </resources>

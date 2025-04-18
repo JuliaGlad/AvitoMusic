@@ -10,6 +10,8 @@ interface TracksRepository {
 
     suspend fun getLocalTracks(): TracksDtoList
 
+    suspend fun deleteTrackFromLocalDb(trackId: Long)
+
     suspend fun addTrackToLocalDb(
         trackId: Long,
         title: String,

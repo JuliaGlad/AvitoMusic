@@ -17,7 +17,11 @@ class DownloadedTracksReducer: MviReducer<
             is DownloadedTracksPartialState.Error -> updateError(prevState, partialState.throwable)
             is DownloadedTracksPartialState.FilterData -> updateFilterData(prevState, partialState.query)
             DownloadedTracksPartialState.Loading -> updateLoading(prevState)
+            is DownloadedTracksPartialState.TrackDeleted -> updateTrackDeleted(prevState, partialState.track)
         }
+
+    private fun updateTrackDeleted(prevState: DownloadedTracksState, track: String): DownloadedTracksState =
+        prevState.copy(deletedTrack = track)
 
     private fun updateFilterData(prevState: DownloadedTracksState, query: String): DownloadedTracksState {
         val primeTracks = (prevState.content as LceState.Content).data.tracks
@@ -34,16 +38,26 @@ class DownloadedTracksReducer: MviReducer<
                     tracks = primeTracks,
                     filteredTracks = filteredTracks
                 )
-            )
+            ),
+            deletedTrack = null
         )
     }
 
     private fun updateDataLoaded(prevState: DownloadedTracksState, content: LocalTracksList): DownloadedTracksState =
-        prevState.copy(content = LceState.Content(content))
+        prevState.copy(
+            content = LceState.Content(content),
+            deletedTrack = null
+        )
 
     private fun updateError(prevState: DownloadedTracksState, throwable: Throwable): DownloadedTracksState =
-        prevState.copy(content = LceState.Error(throwable))
+        prevState.copy(
+            content = LceState.Error(throwable),
+            deletedTrack = null
+        )
 
     private fun updateLoading(prevState: DownloadedTracksState): DownloadedTracksState =
-        prevState.copy(content = LceState.Loading)
+        prevState.copy(
+            content = LceState.Loading,
+            deletedTrack = null
+        )
 }

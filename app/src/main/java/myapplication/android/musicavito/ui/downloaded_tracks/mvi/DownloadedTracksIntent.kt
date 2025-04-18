@@ -8,4 +8,5 @@ sealed interface DownloadedTracksIntent: MviIntent {
 
     class FilterTracks(val query: String): DownloadedTracksIntent
 
+    class DeleteTrackFromLocal(val trackId: Long, val track: String): DownloadedTracksIntent
 }

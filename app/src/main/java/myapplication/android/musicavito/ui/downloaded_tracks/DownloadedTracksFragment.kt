@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import myapplication.android.core_mvi.LceState
 import myapplication.android.core_mvi.MviBaseFragment
@@ -70,21 +71,29 @@ class DownloadedTracksFragment : MviBaseFragment<
 
     override fun resolveEffect(effect: DownloadedTracksEffect) {
         when (effect) {
-            is DownloadedTracksEffect.DeleteTrack -> TODO()
             is DownloadedTracksEffect.PlayTrack -> TODO()
+            is DownloadedTracksEffect.ShowTrackDeletedSnackBar -> {
+                Snackbar.make(
+                    requireView(),
+                    "${getString(R.string.track)} ${effect.track} ${getString(R.string.was_successfully_deleted)}",
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
         }
     }
 
     override fun render(state: DownloadedTracksState) {
         when (state.content) {
             is LceState.Content -> {
-                setLayoutsVisibility(GONE, GONE)
-                with(state.content.data) {
-                    if (filteredTracks == null) setUi(tracks)
-                    else {
-                        setUi(filteredTracks!!)
+                if (state.deletedTrack == null) {
+                    setLayoutsVisibility(GONE, GONE)
+                    with(state.content.data) {
+                        if (filteredTracks == null) setUi(tracks)
+                        else {
+                            setUi(filteredTracks!!)
+                        }
                     }
-                }
+                } else store.sendEffect(DownloadedTracksEffect.ShowTrackDeletedSnackBar(state.deletedTrack))
             }
 
             is LceState.Error -> {
@@ -137,6 +146,14 @@ class DownloadedTracksFragment : MviBaseFragment<
                     else setTitle("${getString(R.string.nothing_found_for)} $query")
                 }
                 binding.tracks.emptyView.visibility = VISIBLE
+            }
+            onSwipeToDeleteClickListener = { item ->
+                store.sendIntent(
+                    DownloadedTracksIntent.DeleteTrackFromLocal(
+                        trackId = item.trackId,
+                        track = item.title
+                    )
+                )
             }
         }
     }

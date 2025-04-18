@@ -7,4 +7,5 @@
     <string name="nothing_found_for">Nothing found for query:</string>
     <string name="nothing_found">Nothing found</string>
     <string name="looks_like_you_dont_have_any_tracks_yet">Looks like you don`t have any tracks, yet!</string>
+    <string name="was_successfully_deleted">was deleted</string>
 </resources>

@@ -12,6 +12,8 @@ sealed interface DownloadedTracksPartialState: MviPartialState {
 
     class FilterData(val query: String): DownloadedTracksPartialState
 
+    class TrackDeleted(val track: String): DownloadedTracksPartialState
+
     class Error(val throwable: Throwable): DownloadedTracksPartialState
 
 }
