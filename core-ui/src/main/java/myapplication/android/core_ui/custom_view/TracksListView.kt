@@ -45,7 +45,7 @@ class TracksListView @JvmOverloads constructor(
         recyclerView.adapter = adapter
     }
 
-    fun isEmpty() = recyclerItems.isEmpty()
+    fun isEmpty() = recyclerItems.isEmpty() && emptyView.visibility == GONE
 
     fun updateItem(id: Long, isDownloaded: Boolean) {
         for (i in recyclerItems){

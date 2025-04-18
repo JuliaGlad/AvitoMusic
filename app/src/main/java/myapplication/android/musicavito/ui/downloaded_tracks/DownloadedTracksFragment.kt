@@ -63,7 +63,7 @@ class DownloadedTracksFragment : MviBaseFragment<
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         collectData()
-        if (binding.tracks.isEmpty()){
+        if (binding.tracks.isEmpty()) {
             store.sendIntent(DownloadedTracksIntent.GetLocalTracks)
         }
     }
@@ -82,13 +82,7 @@ class DownloadedTracksFragment : MviBaseFragment<
                 with(state.content.data) {
                     if (filteredTracks == null) setUi(tracks)
                     else {
-                        if (filteredTracks!!.isEmpty()) {
-                            val query = viewModel.query.value
-                            binding.tracks.emptyView.setTitle("${getString(R.string.nothing_found_for)} $query")
-                            binding.tracks.emptyView.visibility = VISIBLE
-                        } else {
-                            setUi(filteredTracks!!)
-                        }
+                        setUi(filteredTracks!!)
                     }
                 }
             }
@@ -115,7 +109,6 @@ class DownloadedTracksFragment : MviBaseFragment<
                         store.sendIntent(DownloadedTracksIntent.FilterTracks(query))
                     } else {
                         store.sendIntent(DownloadedTracksIntent.GetLocalTracks)
-                        binding.tracks.emptyView.visibility = GONE
                     }
                 }
             }
