@@ -22,8 +22,9 @@ class DownloadedTracksReducer: MviReducer<
     private fun updateFilterData(prevState: DownloadedTracksState, query: String): DownloadedTracksState {
         val primeTracks = (prevState.content as LceState.Content).data.tracks
         val filteredTracks = mutableListOf<TrackUi>()
+        val lowerQuery = query.lowercase()
         primeTracks.forEach { item ->
-            if (item.title.contains(query) || item.artist.name.contains(query)){
+            if (item.title.lowercase().contains(lowerQuery) || item.artist.name.lowercase().contains(lowerQuery)){
                 filteredTracks.add(item)
             }
         }

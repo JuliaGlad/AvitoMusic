@@ -10,7 +10,7 @@ import myapplication.android.musicavito.ui.mapper.toLocalUi
 
 class DownloadedTracksActor(
     private val getLocalTracksUseCase: GetLocalTracksUseCase
-): MviActor<
+) : MviActor<
         DownloadedTracksPartialState,
         DownloadedTracksIntent,
         DownloadedTracksState,
@@ -20,7 +20,7 @@ class DownloadedTracksActor(
         intent: DownloadedTracksIntent,
         state: DownloadedTracksState
     ): Flow<DownloadedTracksPartialState> =
-        when(intent){
+        when (intent) {
             is DownloadedTracksIntent.FilterTracks -> filterTracksByQuery(intent.query)
             DownloadedTracksIntent.GetLocalTracks -> loadTracks()
         }
@@ -46,7 +46,7 @@ class DownloadedTracksActor(
         runCatchingNonCancellation {
             asyncAwait(
                 { getLocalTracksUseCase.invoke() }
-            ){ data ->
+            ) { data ->
                 data.toLocalUi()
             }
         }.getOrThrow()

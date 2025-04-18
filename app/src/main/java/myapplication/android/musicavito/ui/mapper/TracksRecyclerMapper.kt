@@ -7,30 +7,37 @@ import java.util.stream.Collectors
 
 fun TracksUiList.toRecyclerItems(
     onItemClicked: (String) -> Unit,
-    onIconClicked: (TrackUi) -> Unit
+    onIconClicked: (TrackUi) -> Unit,
+    isVisible: Boolean = true
 ): MutableList<TrackModel> = tracks.stream()
     .map {
         it.toRecyclerItem(
             tracks.indexOf(it),
-            onItemClicked, onIconClicked
+            onItemClicked,
+            onIconClicked,
+            isVisible
         )
     }.collect(Collectors.toList())
 
 fun List<TrackUi>.toRecyclerItems(
     onItemClicked: (String) -> Unit,
-    onIconClicked: ((TrackUi) -> Unit)? = null
+    onIconClicked: ((TrackUi) -> Unit)? = null,
+    isVisible: Boolean = true
 ): MutableList<TrackModel> = stream()
     .map {
         it.toRecyclerItem(
             indexOf(it),
-            onItemClicked, onIconClicked
+            onItemClicked,
+            onIconClicked,
+            isVisible
         )
     }.collect(Collectors.toList())
 
 fun TrackUi.toRecyclerItem(
     index: Int,
     onItemClicked: (String) -> Unit,
-    onIconClicked: ((TrackUi) -> Unit)?
+    onIconClicked: ((TrackUi) -> Unit)?,
+    isVisible: Boolean
 ) = TrackModel(
     id = index,
     trackId = id,
@@ -43,5 +50,6 @@ fun TrackUi.toRecyclerItem(
         if (onIconClicked != null) {
             onIconClicked(this)
         }
-    }
+    },
+    isVisible = isVisible
 )

@@ -4,5 +4,5 @@ import myapplication.android.musicavito.ui.model.TrackUi
 
 class LocalTracksList(
     val tracks: List<TrackUi>,
-    var filteredTracks: List<TrackUi>
+    var filteredTracks: List<TrackUi>? = null
 )

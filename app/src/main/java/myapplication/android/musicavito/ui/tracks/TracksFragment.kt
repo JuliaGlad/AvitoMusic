@@ -63,14 +63,9 @@ class TracksFragment : MviBaseFragment<
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val items = viewModel.items.value
         collectData()
-        if (items.isEmpty()) {
+        if (binding.tracks.isEmpty()) {
             store.sendIntent(TracksIntent.GetTracks)
-        } else {
-            setLayoutsVisibility(GONE, GONE)
-            initSearchView()
-            binding.tracks.setItems(items)
         }
     }
 
@@ -148,8 +143,8 @@ class TracksFragment : MviBaseFragment<
 
     private fun initRecyclerView(tracks: TracksUiList) {
         with(binding.tracks) {
+            val query = viewModel.query.value
             clearItems()
-            viewModel.removeItems()
             val items = tracks.toRecyclerItems(
                 onItemClicked = { store.sendEffect(TracksEffect.PlayTrack(it)) },
                 onIconClicked = { store.sendEffect(TracksEffect.DownloadTrack(it)) }
@@ -157,9 +152,7 @@ class TracksFragment : MviBaseFragment<
             if (items.isNotEmpty()) {
                 binding.tracks.emptyView.visibility = GONE
                 setItems(items)
-                viewModel.addItems(items)
             } else {
-                val query = viewModel.query.value
                 with(binding.tracks.emptyView) {
                     if (query.isNullOrEmpty()) setTitle(getString(R.string.nothing_found))
                     else setTitle("${getString(R.string.nothing_found_for)} $query")

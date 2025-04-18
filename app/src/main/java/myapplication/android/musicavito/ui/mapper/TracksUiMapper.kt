@@ -20,7 +20,7 @@ fun TracksDomainList.toLocalUi() =
         tracks = tracks.stream()
             .map { it.toUi() }
             .collect(Collectors.toList()),
-        filteredTracks = emptyList()
+        filteredTracks = null
     )
 
 fun TrackDomain.toUi() =

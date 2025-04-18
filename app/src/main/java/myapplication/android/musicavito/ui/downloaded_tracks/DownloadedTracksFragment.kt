@@ -9,6 +9,8 @@ import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import myapplication.android.core_mvi.LceState
 import myapplication.android.core_mvi.MviBaseFragment
 import myapplication.android.core_mvi.MviStore
@@ -60,7 +62,10 @@ class DownloadedTracksFragment : MviBaseFragment<
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        store.sendIntent(DownloadedTracksIntent.GetLocalTracks)
+        collectData()
+        if (binding.tracks.isEmpty()){
+            store.sendIntent(DownloadedTracksIntent.GetLocalTracks)
+        }
     }
 
     override fun resolveEffect(effect: DownloadedTracksEffect) {
@@ -71,15 +76,23 @@ class DownloadedTracksFragment : MviBaseFragment<
     }
 
     override fun render(state: DownloadedTracksState) {
-        when(state.content){
+        when (state.content) {
             is LceState.Content -> {
                 setLayoutsVisibility(GONE, GONE)
                 with(state.content.data) {
-                    if (filteredTracks.isEmpty()) {
-                        setUi(tracks)
-                    } else setUi(filteredTracks)
+                    if (filteredTracks == null) setUi(tracks)
+                    else {
+                        if (filteredTracks!!.isEmpty()) {
+                            val query = viewModel.query.value
+                            binding.tracks.emptyView.setTitle("${getString(R.string.nothing_found_for)} $query")
+                            binding.tracks.emptyView.visibility = VISIBLE
+                        } else {
+                            setUi(filteredTracks!!)
+                        }
+                    }
                 }
             }
+
             is LceState.Error -> {
                 setLayoutsVisibility(GONE, VISIBLE)
                 binding.tracks.error.onTryAgainClickListener = {
@@ -89,11 +102,27 @@ class DownloadedTracksFragment : MviBaseFragment<
                 }
                 Log.e(DOWNLOADED_TRACKS_FRAGMENT_TAG, state.content.throwable.message.toString())
             }
+
             LceState.Loading -> setLayoutsVisibility(VISIBLE, GONE)
         }
     }
 
-    private fun setUi(content:  List<TrackUi>) {
+    private fun collectData() {
+        lifecycleScope.launch {
+            viewModel.query.collect { query ->
+                if (query != null) {
+                    if (query.isNotEmpty()) {
+                        store.sendIntent(DownloadedTracksIntent.FilterTracks(query))
+                    } else {
+                        store.sendIntent(DownloadedTracksIntent.GetLocalTracks)
+                        binding.tracks.emptyView.visibility = GONE
+                    }
+                }
+            }
+        }
+    }
+
+    private fun setUi(content: List<TrackUi>) {
         setLayoutsVisibility(GONE, GONE)
         initSearchView()
         initRecyclerView(content)
@@ -101,17 +130,15 @@ class DownloadedTracksFragment : MviBaseFragment<
 
     private fun initRecyclerView(tracks: List<TrackUi>) {
         with(binding.tracks) {
+            val query = viewModel.query.value
             clearItems()
-            viewModel.removeItems()
             val items = tracks.toRecyclerItems(
-                onItemClicked = { store.sendEffect(DownloadedTracksEffect.PlayTrack(it)) }
+                onItemClicked = { store.sendEffect(DownloadedTracksEffect.PlayTrack(it)) },
+                isVisible = false
             )
-            if (items.isNotEmpty()) {
-                binding.tracks.emptyView.visibility = GONE
-                setItems(items)
-                viewModel.addItems(items)
-            } else {
-                val query = viewModel.query.value
+            binding.tracks.emptyView.visibility = GONE
+            if (items.isNotEmpty()) setItems(items)
+            else {
                 with(binding.tracks.emptyView) {
                     if (query.isNullOrEmpty()) setTitle(getString(R.string.nothing_found))
                     else setTitle("${getString(R.string.nothing_found_for)} $query")
