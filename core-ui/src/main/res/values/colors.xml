@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="light_blue">#EDF4FF</color>
+    <color name="hint_blue">#8F9BB4</color>
+    <color name="indicator_color">#00FFFFFF</color>
+    <color name="black">#304866</color>
+    <color name="light_black">#A1ADBD</color>
+    <color name="white">#FFFFFF</color>
+</resources>

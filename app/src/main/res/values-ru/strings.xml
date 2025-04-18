@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="general">Главная</string>
+    <string name="my_music">Моя музыка</string>
+    <string name="track">Трек</string>
+    <string name="was_successfully_downloaded">был успешно скачан!</string>
+    <string name="nothing_found_for">Ничего не найдено по запросу:</string>
+    <string name="nothing_found">Ничего не найдено </string>
+    <string name="looks_like_you_dont_have_any_tracks_yet">У вас пока что нет скачанных треков!</string>
+</resources>
