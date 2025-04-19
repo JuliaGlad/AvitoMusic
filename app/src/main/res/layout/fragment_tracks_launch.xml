@@ -34,7 +34,6 @@
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="24dp"
         android:layout_marginBottom="24dp"
         app:layout_constraintBottom_toTopOf="@id/info_layout"
         app:layout_constraintEnd_toEndOf="parent"
@@ -93,7 +92,7 @@
             app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
-            android:id="@+id/current_time"
+            android:id="@+id/duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
@@ -101,10 +100,10 @@
             android:textColor="@color/white_half"
             app:layout_constraintBottom_toTopOf="@+id/pause_play"
             app:layout_constraintEnd_toEndOf="@id/seekBar"
-            tools:text="0:00" />
+            tools:text="0:30" />
 
         <TextView
-            android:id="@+id/duration"
+            android:id="@+id/current_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -112,7 +111,7 @@
             android:textColor="@color/white_half"
             app:layout_constraintBottom_toTopOf="@id/pause_play"
             app:layout_constraintStart_toStartOf="@id/seekBar"
-            tools:text="0:30" />
+            tools:text="0:00" />
 
         <ImageView
             android:id="@+id/pause_play"

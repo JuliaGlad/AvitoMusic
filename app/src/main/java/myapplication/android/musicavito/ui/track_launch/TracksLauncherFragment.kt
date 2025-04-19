@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.gson.Gson
@@ -42,12 +43,14 @@ class TracksLauncherFragment : Fragment() {
     private val covers: List<String?> get() = _covers!!
 
     private var currentPosition: Int? = -1
+    private var userInitiatedScroll: Boolean = false
 
     private val handler = Handler(Looper.getMainLooper())
     private val updateSeekRunnable = object : Runnable {
         override fun run() {
             binding.seekBar.progress = player.currentPosition.toInt()
             binding.currentTime.text = formatTime(player.currentPosition)
+            binding.duration.text = "-${formatTime(player.duration - player.currentPosition)}"
             handler.postDelayed(this, 500)
         }
     }
@@ -75,17 +78,16 @@ class TracksLauncherFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        with(binding.viewPager) {
-            adapter = CoverAdapter(covers, this)
-            currentPosition?.let { setCurrentItem(it, false) }
-            setPageTransformer(ZoomOutPageTransformer())
-        }
-
         player = ExoPlayer.Builder(requireContext()).build()
+        initViewPager()
         initButtonBack()
         playCurrentTrack()
         initControllers()
         initSeekbar()
+        addPlayerListener()
+    }
+
+    private fun addPlayerListener() {
         player.addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
                 super.onPlaybackStateChanged(playbackState)
@@ -96,12 +98,36 @@ class TracksLauncherFragment : Fragment() {
                 } else if (playbackState == Player.STATE_ENDED) {
                     currentPosition?.let {
                         currentPosition = (it + 1) % tracks.size
-                        binding.viewPager.setCurrentItem(it, true)
                         playCurrentTrack()
                     }
                 }
             }
         })
+    }
+
+    private fun initViewPager() {
+        with(binding.viewPager) {
+            adapter = CoverAdapter(covers, this)
+            currentPosition?.let { setCurrentItem(it, false) }
+            setPageTransformer(ZoomOutPageTransformer())
+            registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+                override fun onPageScrollStateChanged(state: Int) {
+                    if (state == ViewPager2.SCROLL_STATE_DRAGGING) {
+                        userInitiatedScroll = true
+                    } else if (state == ViewPager2.SCROLL_STATE_IDLE) {
+                        userInitiatedScroll = false
+                    }
+                }
+
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+                    if (userInitiatedScroll && position != currentPosition) {
+                        currentPosition = position
+                        playCurrentTrack()
+                    }
+                }
+            })
+        }
     }
 
     private fun initButtonBack() {
@@ -147,7 +173,6 @@ class TracksLauncherFragment : Fragment() {
         binding.playNext.setOnClickListener {
             currentPosition?.let {
                 currentPosition = (it + 1) % tracks.size
-                binding.viewPager.setCurrentItem(it, true)
                 playCurrentTrack()
             }
         }
@@ -181,7 +206,11 @@ class TracksLauncherFragment : Fragment() {
         )
         binding.trackTitle.text = currentTrack?.title
         binding.trackArtist.text = currentTrack?.artist?.name
-        currentPosition?.let { binding.viewPager.setCurrentItem(it, true) }
+        currentPosition?.let {
+            binding.viewPager.post {
+                binding.viewPager.setCurrentItem(it, true)
+            }
+        }
         Glide.with(this)
             .load(currentTrack?.album?.image)
             .apply(RequestOptions.bitmapTransform(BlurTransformation(32, 3)))
@@ -198,6 +227,7 @@ class TracksLauncherFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         player.release()
+        handler.removeCallbacks(updateSeekRunnable)
         _binding = null
     }
 
