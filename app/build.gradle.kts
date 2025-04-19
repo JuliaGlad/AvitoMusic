@@ -47,6 +47,12 @@ android {
 dependencies {
     implementation(project(":core-ui"))
     implementation(project(":core-mvi"))
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
+    implementation(libs.androidx.media3.common)
+    implementation(libs.androidx.viewpager2)
+    implementation(libs.glide.transformations)
+    kapt(libs.compiler)
     implementation(libs.cicerone)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.fragment.ktx)

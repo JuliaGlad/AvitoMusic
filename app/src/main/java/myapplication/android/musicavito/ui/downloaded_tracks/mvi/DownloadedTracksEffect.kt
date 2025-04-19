@@ -6,6 +6,6 @@ sealed interface DownloadedTracksEffect: MviEffect {
 
     class ShowTrackDeletedSnackBar(val track: String): DownloadedTracksEffect
 
-    class PlayTrack(val audio: String): DownloadedTracksEffect
+    class PlayTrack(val currentPosition: Int): DownloadedTracksEffect
 
 }

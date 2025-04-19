@@ -11,6 +11,7 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import myapplication.android.core_mvi.LceState
 import myapplication.android.core_mvi.MviBaseFragment
@@ -18,7 +19,9 @@ import myapplication.android.core_mvi.MviStore
 import myapplication.android.musicavito.R
 import myapplication.android.musicavito.databinding.FragmentTracksBinding
 import myapplication.android.musicavito.di.DaggerAppComponent
+import myapplication.android.musicavito.ui.main.MainActivity
 import myapplication.android.musicavito.ui.mapper.toRecyclerItems
+import myapplication.android.musicavito.ui.model.TrackUi
 import myapplication.android.musicavito.ui.model.TracksUiList
 import myapplication.android.musicavito.ui.tracks.di.DaggerTracksComponent
 import myapplication.android.musicavito.ui.tracks.mvi.TracksEffect
@@ -42,6 +45,7 @@ class TracksFragment : MviBaseFragment<
     private val binding get() = _binding!!
 
     private val viewModel: TracksViewModel by viewModels()
+    private var trackItems: List<TrackUi> = emptyList()
 
     override val store: MviStore<TracksPartialState, TracksIntent, TracksState, TracksEffect>
             by viewModels { TracksStoreFactory(localDi.actor, localDi.reducer) }
@@ -99,7 +103,11 @@ class TracksFragment : MviBaseFragment<
                     )
                 }
 
-            is TracksEffect.PlayTrack -> TODO("Open play track screen")
+            is TracksEffect.PlayTrack ->
+                (activity as MainActivity).openTrackLaunchActivity(
+                    tracks = Gson().toJson(trackItems),
+                    currentPosition = effect.trackPosition
+                )
             is TracksEffect.ShowSnackBar -> {
                 Snackbar.make(
                     requireView(),
@@ -149,6 +157,7 @@ class TracksFragment : MviBaseFragment<
                 onItemClicked = { store.sendEffect(TracksEffect.PlayTrack(it)) },
                 onIconClicked = { store.sendEffect(TracksEffect.DownloadTrack(it)) }
             )
+            trackItems = tracks.tracks
             if (items.isNotEmpty()) {
                 binding.tracks.emptyView.visibility = GONE
                 setItems(items)

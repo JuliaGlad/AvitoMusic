@@ -11,6 +11,7 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import myapplication.android.core_mvi.LceState
 import myapplication.android.core_mvi.MviBaseFragment
@@ -25,6 +26,7 @@ import myapplication.android.musicavito.ui.downloaded_tracks.mvi.DownloadedTrack
 import myapplication.android.musicavito.ui.downloaded_tracks.mvi.DownloadedTracksPartialState
 import myapplication.android.musicavito.ui.downloaded_tracks.mvi.DownloadedTracksState
 import myapplication.android.musicavito.ui.downloaded_tracks.mvi.DownloadedTracksStoreFactory
+import myapplication.android.musicavito.ui.main.MainActivity
 import myapplication.android.musicavito.ui.mapper.toRecyclerItems
 import myapplication.android.musicavito.ui.model.TrackUi
 import javax.inject.Inject
@@ -42,6 +44,8 @@ class DownloadedTracksFragment : MviBaseFragment<
     private val binding get() = _binding!!
 
     private val viewModel: DownloadedTracksViewModel by viewModels()
+
+    private var trackItems : List<TrackUi> = emptyList()
 
     override val store: MviStore<DownloadedTracksPartialState, DownloadedTracksIntent, DownloadedTracksState, DownloadedTracksEffect>
             by viewModels { DownloadedTracksStoreFactory(localDi.actor, localDi.reducer) }
@@ -71,7 +75,11 @@ class DownloadedTracksFragment : MviBaseFragment<
 
     override fun resolveEffect(effect: DownloadedTracksEffect) {
         when (effect) {
-            is DownloadedTracksEffect.PlayTrack -> TODO()
+            is DownloadedTracksEffect.PlayTrack ->
+                (activity as MainActivity).openTrackLaunchActivity(
+                    tracks = Gson().toJson(trackItems),
+                    currentPosition = effect.currentPosition
+                )
             is DownloadedTracksEffect.ShowTrackDeletedSnackBar -> {
                 Snackbar.make(
                     requireView(),
@@ -134,6 +142,7 @@ class DownloadedTracksFragment : MviBaseFragment<
         with(binding.tracks) {
             val query = viewModel.query.value
             clearItems()
+            trackItems = tracks
             val items = tracks.toRecyclerItems(
                 onItemClicked = { store.sendEffect(DownloadedTracksEffect.PlayTrack(it)) },
                 isVisible = false

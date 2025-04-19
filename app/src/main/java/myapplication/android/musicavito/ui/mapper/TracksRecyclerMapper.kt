@@ -6,7 +6,7 @@ import myapplication.android.musicavito.ui.model.TracksUiList
 import java.util.stream.Collectors
 
 fun TracksUiList.toRecyclerItems(
-    onItemClicked: (String) -> Unit,
+    onItemClicked: (Int) -> Unit,
     onIconClicked: (TrackUi) -> Unit,
     isVisible: Boolean = true
 ): MutableList<TrackModel> = tracks.stream()
@@ -20,7 +20,7 @@ fun TracksUiList.toRecyclerItems(
     }.collect(Collectors.toList())
 
 fun List<TrackUi>.toRecyclerItems(
-    onItemClicked: (String) -> Unit,
+    onItemClicked: (Int) -> Unit,
     onIconClicked: ((TrackUi) -> Unit)? = null,
     isVisible: Boolean = true
 ): MutableList<TrackModel> = stream()
@@ -35,7 +35,7 @@ fun List<TrackUi>.toRecyclerItems(
 
 fun TrackUi.toRecyclerItem(
     index: Int,
-    onItemClicked: (String) -> Unit,
+    onItemClicked: (Int) -> Unit,
     onIconClicked: ((TrackUi) -> Unit)?,
     isVisible: Boolean
 ) = TrackModel(
@@ -45,7 +45,7 @@ fun TrackUi.toRecyclerItem(
     image = album?.image,
     artist = artist.name,
     isDownloaded = isDownloaded,
-    onItemClicked = { onItemClicked(audio) },
+    onItemClicked = { onItemClicked(index) },
     onIconClicked = {
         if (onIconClicked != null) {
             onIconClicked(this)

@@ -1,12 +1,12 @@
 package myapplication.android.musicavito.ui.mapper
 
+import myapplication.android.core_ui.recycler_item.TrackModel
 import myapplication.android.musicavito.domain.model.TrackDomain
 import myapplication.android.musicavito.domain.model.TracksDomainList
 import myapplication.android.musicavito.ui.downloaded_tracks.model.LocalTracksList
 import myapplication.android.musicavito.ui.model.TrackUi
 import myapplication.android.musicavito.ui.model.TracksUiList
 import java.util.stream.Collectors
-
 
 fun TracksDomainList.toUi() =
     TracksUiList(

@@ -5,7 +5,7 @@ import myapplication.android.musicavito.ui.model.TrackUi
 
 sealed interface TracksEffect: MviEffect {
 
-    class PlayTrack(val audio: String): TracksEffect
+    class PlayTrack(val trackPosition: Int): TracksEffect
 
     class DownloadTrack(val track: TrackUi): TracksEffect
 
