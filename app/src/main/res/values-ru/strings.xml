@@ -8,4 +8,7 @@
     <string name="nothing_found">Ничего не найдено </string>
     <string name="looks_like_you_dont_have_any_tracks_yet">У вас пока что нет скачанных треков!</string>
     <string name="was_successfully_deleted">был удален</string>
+    <string name="download">Загрузка</string>
+    <string name="downloading_in_progress">Загружено</string>
+    <string name="another_download_is_in_progress">Другой трек уже загружается</string>
 </resources>

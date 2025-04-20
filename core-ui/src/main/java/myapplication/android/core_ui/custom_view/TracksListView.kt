@@ -3,7 +3,6 @@ package myapplication.android.core_ui.custom_view
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.LayoutInflater
 import android.widget.EditText
 import android.widget.LinearLayout
@@ -51,9 +50,9 @@ class TracksListView @JvmOverloads constructor(
     init {
         orientation = VERTICAL
         recyclerView.adapter = adapter
-        context.withStyledAttributes(attrs, R.styleable.TracksListView){
+        context.withStyledAttributes(attrs, R.styleable.TracksListView) {
             val swipeToDelete = getBoolean(R.styleable.TracksListView_swipeToDelete, false)
-            if (swipeToDelete){
+            if (swipeToDelete) {
                 val swipeGesture = object : SwipeGesture(context) {
                     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                         when (direction) {
@@ -63,6 +62,7 @@ class TracksListView @JvmOverloads constructor(
                                 recyclerItems.removeAt(position)
                                 adapter.notifyItemRemoved(position)
                                 onSwipeToDeleteClickListener?.invoke(deleted)
+                                if (recyclerItems.isEmpty()) showEmptyLayout()
                             }
                         }
                     }
@@ -77,14 +77,24 @@ class TracksListView @JvmOverloads constructor(
 
     fun isEmpty(): Boolean = recyclerItems.isEmpty() && emptyView.visibility == GONE
 
-    fun updateItem(id: Long, isDownloaded: Boolean) {
+    fun updateItemDownloaded(id: Long, isDownloaded: Boolean) {
         for (i in recyclerItems) {
             if (i.trackId == id) {
                 val index = recyclerItems.indexOf(i)
-                recyclerItems[index].isDownloaded = isDownloaded
+                recyclerItems[index].apply {
+                    this.isDownloaded = isDownloaded
+                    isLoading = false
+                }
                 adapter.notifyItemChanged(index)
             }
         }
+    }
+
+    private fun showEmptyLayout(){
+        binding.emptyList.visibility = VISIBLE
+        binding.emptyList.setTitle(
+            context.getString(R.string.looks_like_you_dont_have_any_tracks_yet)
+        )
     }
 
     @SuppressLint("NotifyDataSetChanged")

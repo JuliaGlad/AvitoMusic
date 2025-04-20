@@ -2,6 +2,7 @@ package myapplication.android.core_ui.recycler_item
 
 import android.view.LayoutInflater
 import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.net.toUri
@@ -46,6 +47,10 @@ class TrackAdapter : ListAdapter<TrackModel, RecyclerView.ViewHolder>(TrackCallb
                     val imageId = imageResources[randomIndex]
                     binding.image.setImage(imageId)
                 }
+                if (isLoading){
+                    binding.iconProgress.visibility = VISIBLE
+                }
+
                 if (isVisible) {
                     val iconId =
                         if (isDownloaded) R.drawable.ic_download_done

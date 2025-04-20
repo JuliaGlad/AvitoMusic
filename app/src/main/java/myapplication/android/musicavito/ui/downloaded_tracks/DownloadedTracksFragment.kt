@@ -151,7 +151,7 @@ class DownloadedTracksFragment : MviBaseFragment<
             if (items.isNotEmpty()) setItems(items)
             else {
                 with(binding.tracks.emptyView) {
-                    if (query.isNullOrEmpty()) setTitle(getString(R.string.nothing_found))
+                    if (query.isNullOrEmpty()) setTitle(getString(R.string.looks_like_you_dont_have_any_tracks_yet))
                     else setTitle("${getString(R.string.nothing_found_for)} $query")
                 }
                 binding.tracks.emptyView.visibility = VISIBLE
