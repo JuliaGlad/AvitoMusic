@@ -9,6 +9,6 @@ sealed interface TracksEffect: MviEffect {
 
     class DownloadTrack(val track: TrackUi): TracksEffect
 
-    class ShowSnackBar(val track: String): TracksEffect
+    class ShowSnackBar(val text: String): TracksEffect
 
 }

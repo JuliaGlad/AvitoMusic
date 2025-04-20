@@ -89,7 +89,7 @@ class TracksFragment : MviBaseFragment<
 
     override fun resolveEffect(effect: TracksEffect) {
         when (effect) {
-            is TracksEffect.DownloadTrack ->
+            is TracksEffect.DownloadTrack -> {
                 with(effect.track) {
                     store.sendIntent(
                         TracksIntent.AddTrackToLocalDb(
@@ -102,16 +102,18 @@ class TracksFragment : MviBaseFragment<
                         )
                     )
                 }
+            }
 
             is TracksEffect.PlayTrack ->
                 (activity as MainActivity).openTrackLaunchActivity(
                     tracks = Gson().toJson(trackItems),
                     currentPosition = effect.trackPosition
                 )
+
             is TracksEffect.ShowSnackBar -> {
                 Snackbar.make(
                     requireView(),
-                    "${getString(R.string.track)} ${effect.track} ${getString(R.string.was_successfully_downloaded)}",
+                    effect.text,
                     Snackbar.LENGTH_LONG
                 ).show()
             }
@@ -124,8 +126,16 @@ class TracksFragment : MviBaseFragment<
                 if (state.newLocalTrack == null) {
                     setUi(state.content.data)
                 } else {
-                    store.sendEffect(TracksEffect.ShowSnackBar(state.newLocalTrack.second))
-                    binding.tracks.updateItem(state.newLocalTrack.first, true)
+                    store.sendEffect(
+                        TracksEffect.ShowSnackBar(
+                            "${getString(R.string.track)} ${state.newLocalTrack.second} ${
+                                getString(
+                                    R.string.was_successfully_downloaded
+                                )
+                            }"
+                        )
+                    )
+                    binding.tracks.updateItemDownloaded(state.newLocalTrack.first, true)
                 }
             }
 
