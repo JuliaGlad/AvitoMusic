@@ -1,5 +1,10 @@
 package myapplication.android.musicavito.ui.track_launch
 
+import android.app.ActivityManager
+import android.content.Context
+import android.content.Intent
+import android.os.Build
+import android.os.Build.VERSION
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -7,11 +12,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
+import androidx.activity.OnBackPressedCallback
+import androidx.annotation.OptIn
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.util.Log
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
@@ -22,12 +31,12 @@ import jp.wasabeef.glide.transformations.BlurTransformation
 import myapplication.android.musicavito.R
 import myapplication.android.musicavito.databinding.FragmentTracksLaunchBinding
 import myapplication.android.musicavito.ui.model.TrackUi
+import myapplication.android.musicavito.ui.service.MusicPlayerService
 import myapplication.android.musicavito.ui.track_launch.viewpager.CoverAdapter
 import myapplication.android.musicavito.ui.track_launch.viewpager.ZoomOutPageTransformer
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import java.util.stream.Collectors
-
 
 class TracksLauncherFragment : Fragment() {
 
@@ -44,6 +53,7 @@ class TracksLauncherFragment : Fragment() {
 
     private var currentPosition: Int? = -1
     private var userInitiatedScroll: Boolean = false
+    private var startService: Boolean = true
 
     private val handler = Handler(Looper.getMainLooper())
     private val updateSeekRunnable = object : Runnable {
@@ -55,6 +65,7 @@ class TracksLauncherFragment : Fragment() {
         }
     }
 
+    @OptIn(UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         currentPosition = activity?.intent?.getIntExtra(CURRENT_POSITION, -1)
@@ -65,6 +76,21 @@ class TracksLauncherFragment : Fragment() {
         _covers = tracks.stream()
             .map { it.album?.image }
             .collect(Collectors.toList())
+    }
+
+    @OptIn(UnstableApi::class)
+    override fun onResume() {
+        super.onResume()
+        if (checkForegroundServiceRunning()) {
+            activity?.intent?.let {
+                currentPosition = it.getIntExtra(CURRENT_POSITION, -1)
+                val seekTo = it.getLongExtra(SEEK_TO, 0L)
+                val isPlaying = it.getBooleanExtra(IS_PLAYING, true)
+                playCurrentTrack(isPlaying, seekTo)
+            }
+            val stopIntent = Intent(requireContext(), MusicPlayerService::class.java)
+            requireContext().stopService(stopIntent)
+        }
     }
 
     override fun onCreateView(
@@ -83,6 +109,7 @@ class TracksLauncherFragment : Fragment() {
         initButtonBack()
         playCurrentTrack()
         initControllers()
+        handleBackButtonPressed()
         initSeekbar()
         addPlayerListener()
     }
@@ -131,7 +158,7 @@ class TracksLauncherFragment : Fragment() {
     }
 
     private fun initButtonBack() {
-        binding.close.setOnClickListener { requireActivity().finish() }
+        binding.close.setOnClickListener { finishActivity() }
     }
 
     private fun initSeekbar() {
@@ -185,7 +212,8 @@ class TracksLauncherFragment : Fragment() {
         }
     }
 
-    private fun playCurrentTrack() {
+    @OptIn(UnstableApi::class)
+    private fun playCurrentTrack(isPlaying: Boolean? = null, seekTo: Long = 0L) {
         val currentTrack: TrackUi? = currentPosition?.let {
             tracks[it]
         }
@@ -195,12 +223,21 @@ class TracksLauncherFragment : Fragment() {
             MediaItem.fromUri(it.audio.toUri())
         }
         mediaItem?.let { player.setMediaItem(it) }
+        player.seekTo(seekTo)
         player.prepare()
-        player.play()
+        val playerIcon : Int
+        if (isPlaying == null || isPlaying == true) {
+            player.play()
+            playerIcon = R.drawable.ic_pause
+        }
+        else {
+            player.pause()
+            playerIcon = R.drawable.ic_play
+        }
         binding.pausePlay.setImageDrawable(
             ResourcesCompat.getDrawable(
                 resources,
-                R.drawable.ic_pause,
+                playerIcon,
                 context?.theme
             )
         )
@@ -224,6 +261,56 @@ class TracksLauncherFragment : Fragment() {
         return String.format(Locale.getDefault(), "%d:%02d", minutes, seconds)
     }
 
+
+    private fun finishActivity() {
+        requireActivity().finish()
+        startService = false
+    }
+
+    private fun handleBackButtonPressed() {
+        requireActivity().onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                finishActivity()
+            }
+        })
+    }
+
+    @OptIn(UnstableApi::class)
+    private fun checkForegroundServiceRunning(): Boolean {
+        val manager = requireContext().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        for (service in manager.getRunningServices(Int.MAX_VALUE)) {
+            if (MusicPlayerService::class.java.name == service.service.className) {
+                if (service.foreground) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    @OptIn(UnstableApi::class)
+    override fun onStop() {
+        super.onStop()
+        if (::player.isInitialized && currentPosition in tracks.indices && startService) {
+            val resumePosition = player.currentPosition
+
+            val intent = Intent(requireContext(), MusicPlayerService::class.java).apply {
+                action = null
+                putExtra(TRACKS_LIST, Gson().toJson(tracks))
+                putExtra(CURRENT_POSITION, currentPosition)
+                putExtra(SEEK_TO, resumePosition)
+                putExtra(IS_PLAYING, player.isPlaying)
+            }
+            if (VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                requireContext().startForegroundService(intent)
+            } else {
+                requireContext().startService(intent)
+            }
+            player.stop()
+        }
+    }
+
+    @OptIn(UnstableApi::class)
     override fun onDestroy() {
         super.onDestroy()
         player.release()
@@ -234,6 +321,9 @@ class TracksLauncherFragment : Fragment() {
     companion object {
         const val TRACKS_EXTRA = "TracksExtra"
         const val CURRENT_POSITION = "CurrentPosition"
+        const val TRACKS_LIST = "TracksList"
+        const val SEEK_TO = "SeekTo"
+        const val IS_PLAYING = "IsPlaying"
     }
 
 }
