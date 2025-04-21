@@ -37,3 +37,15 @@
 
 <img src = https://psv4.userapi.com/s/v1/d/R0HrYLh0BdhKlOF9CISFhnE9LiaxCzHCIqpZT0h1_82nvktkxqpHcEu7x760GwitG2zi_7iDxNdYT7-1K-q9WrqadpOnWjdqEl3Dbl_VLgNqRHCRL_aZIA/proslushivanie_treka.png>
 
+## Фоновый плеер
+
+- При сворачивании экрана воспроизведения треков показывается фоновый плеер в виде foreground уведомления с кастомный layout, реализованным посредством RemoteViews
+
+- Трек продолжается с того же момента, на котором остановился при закрытии экрана, можно останавливать и воспроизводить трек, а также переключаться на следующую/предыдущую композицию из списка
+
+- Треки воспроизводятся циклично
+
+- По клику на уведомление пользователь возвращается обратно на экран воспроизведения, воспроизводится тот же трек и на том же моменте, на котором пользователь остановился
+
+<img src = https://psv4.userapi.com/s/v1/d/cG-wo7jOUCbQvbkO5OK3h77Nu_MtNrLxLSlCKAzfBQCIRKc59tadshBsuGTC1cu3vayPTN21ogMPRdU4yg1QZ9ibTrEFRRdyLk7MGJNvaBSjRIhBR6Gk8Q/uvedomlenia.png>
+
