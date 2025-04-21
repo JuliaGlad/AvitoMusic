@@ -35,5 +35,5 @@
 
 - При сворачивании приложения на данном экране появляется уведомление (ForegroundService) для фонового прослушивания музыки
 
-<img src = >
+<img src = https://psv4.userapi.com/s/v1/d/R0HrYLh0BdhKlOF9CISFhnE9LiaxCzHCIqpZT0h1_82nvktkxqpHcEu7x760GwitG2zi_7iDxNdYT7-1K-q9WrqadpOnWjdqEl3Dbl_VLgNqRHCRL_aZIA/proslushivanie_treka.png>
 
