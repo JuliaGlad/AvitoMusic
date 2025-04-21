@@ -49,3 +49,22 @@
 
 <img src = https://psv4.userapi.com/s/v1/d/cG-wo7jOUCbQvbkO5OK3h77Nu_MtNrLxLSlCKAzfBQCIRKc59tadshBsuGTC1cu3vayPTN21ogMPRdU4yg1QZ9ibTrEFRRdyLk7MGJNvaBSjRIhBR6Gk8Q/uvedomlenia.png>
 
+## Техническая часть
+
+- Три модуля: app - основная логика приложения, core-ui - общие ui-элементы, core-mvi - базовый модуль для mvi
+
+- MVI - самописный, содержит следующие сущности: Intent, Effect, State, Actor, Reducer, PartialState, Store
+
+- Приложение выстроено по принципу Clean Achitecture, содержит 3 слоя: data, domain, ui
+
+- Для внедрения зависимостей(DI) используется Dagger2
+
+- RoomDatabase для сохранение скачанных треков, кеширования
+
+- Начала покрывать логику Unit-тестами, пока что успела написать тесты на поиск скачанных треков 
+
+- Для отправки уведомлений используется Foreground Service, для навигации между композициями используется PendingIntent
+
+- Для прослушивания треков используется ExoPlayer
+
+- Для BottomNavigation используется Cicerone
