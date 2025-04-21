@@ -1,5 +1,5 @@
 ## Avito Music
-Дизайн приложения в Figma - 8BVyhZYBrywUkJ8SMPcpWWCCG8LEoUpSSYBw7jo3xa46JjVqwY8CC9xGYAk3j4ShUYhNKuLkhqK44MuSq3rq1KYbL7r71iB
+Дизайн приложения в Figma - https://www.figma.com/design/NK1WGitpS5uKHG38ycldmH/AvitoMusic?node-id=62-306&t=RRTSwoaXFJiaCq0I-1
 
 Приложение для прослушивания музыки через Deezer API
 
@@ -19,3 +19,6 @@
 
 - Реализован свайп влево для удаления трека из скачанных  
 
+- Реализован поиска по локальному списку
+
+<img src = https://psv4.userapi.com/s/v1/d/OkG8VzOC_uSqMuOmzwao_gEWMFjMuecKGKy5gOGVRsYoHYNdxm6uxxvP-fH24fK1WkoNaeMaGM4gPekDWEMAUvOxu-bFubkewEVz3OxBtdgBZhtlXqrcBw/downloaded_tracks.png>
