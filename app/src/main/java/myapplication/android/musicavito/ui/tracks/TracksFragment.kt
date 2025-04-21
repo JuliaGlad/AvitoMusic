@@ -1,6 +1,5 @@
 package myapplication.android.musicavito.ui.tracks
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -130,9 +129,7 @@ class TracksFragment : MviBaseFragment<
                     store.sendEffect(
                         TracksEffect.ShowSnackBar(
                             "${getString(R.string.track)} ${state.newLocalTrack.second} ${
-                                getString(
-                                    R.string.was_successfully_downloaded
-                                )
+                                getString(R.string.was_successfully_downloaded)
                             }"
                         )
                     )

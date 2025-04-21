@@ -11,6 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "myapplication.android.musicavito"
+        testApplicationId = "myapplication.android.musicavito.tests"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -79,6 +80,7 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     testImplementation(libs.junit)
+    testImplementation(project(":core-mvi"))
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }

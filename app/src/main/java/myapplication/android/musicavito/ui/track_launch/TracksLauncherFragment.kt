@@ -17,16 +17,15 @@ import androidx.annotation.OptIn
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
-import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import jp.wasabeef.glide.transformations.BlurTransformation
 import myapplication.android.musicavito.R
 import myapplication.android.musicavito.databinding.FragmentTracksLaunchBinding
@@ -36,7 +35,6 @@ import myapplication.android.musicavito.ui.track_launch.viewpager.CoverAdapter
 import myapplication.android.musicavito.ui.track_launch.viewpager.ZoomOutPageTransformer
 import java.util.Locale
 import java.util.concurrent.TimeUnit
-import java.util.stream.Collectors
 
 class TracksLauncherFragment : Fragment() {
 
@@ -45,11 +43,7 @@ class TracksLauncherFragment : Fragment() {
     private var _binding: FragmentTracksLaunchBinding? = null
     private val binding get() = _binding!!
 
-    private var _tracks: List<TrackUi>? = null
-    private val tracks get() = _tracks!!
-
-    private var _covers: List<String?>? = null
-    private val covers: List<String?> get() = _covers!!
+    private val viewModel: TracksLauncherViewModel by viewModels()
 
     private var currentPosition: Int? = -1
     private var userInitiatedScroll: Boolean = false
@@ -68,14 +62,12 @@ class TracksLauncherFragment : Fragment() {
     @OptIn(UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        currentPosition = activity?.intent?.getIntExtra(CURRENT_POSITION, -1)
-        _tracks = Gson().fromJson(
-            activity?.intent?.getStringExtra(TRACKS_EXTRA),
-            object : TypeToken<List<TrackUi>>() {}.type
-        )
-        _covers = tracks.stream()
-            .map { it.album?.image }
-            .collect(Collectors.toList())
+        activity?.intent?.let {
+            with(it){
+                currentPosition = it.getIntExtra(CURRENT_POSITION, -1)
+                it.getStringExtra(TRACKS_EXTRA)?.let { tracks -> viewModel.initTracks(tracks) }
+            }
+        }
     }
 
     @OptIn(UnstableApi::class)
@@ -124,7 +116,7 @@ class TracksLauncherFragment : Fragment() {
                     handler.post(updateSeekRunnable)
                 } else if (playbackState == Player.STATE_ENDED) {
                     currentPosition?.let {
-                        currentPosition = (it + 1) % tracks.size
+                        currentPosition = (it + 1) % viewModel.tracks.size
                         playCurrentTrack()
                     }
                 }
@@ -134,7 +126,7 @@ class TracksLauncherFragment : Fragment() {
 
     private fun initViewPager() {
         with(binding.viewPager) {
-            adapter = CoverAdapter(covers, this)
+            adapter = CoverAdapter(viewModel.covers, this)
             currentPosition?.let { setCurrentItem(it, false) }
             setPageTransformer(ZoomOutPageTransformer())
             registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
@@ -179,33 +171,25 @@ class TracksLauncherFragment : Fragment() {
                 if (player.isPlaying) {
                     player.pause()
                     setImageDrawable(
-                        ResourcesCompat.getDrawable(
-                            resources,
-                            R.drawable.ic_play,
-                            context?.theme
-                        )
+                        ResourcesCompat.getDrawable(resources, R.drawable.ic_play, context?.theme)
                     )
                 } else {
                     player.play()
                     setImageDrawable(
-                        ResourcesCompat.getDrawable(
-                            resources,
-                            R.drawable.ic_pause,
-                            context?.theme
-                        )
+                        ResourcesCompat.getDrawable(resources, R.drawable.ic_pause, context?.theme)
                     )
                 }
             }
         }
         binding.playNext.setOnClickListener {
             currentPosition?.let {
-                currentPosition = (it + 1) % tracks.size
+                currentPosition = (it + 1) % viewModel.tracks.size
                 playCurrentTrack()
             }
         }
         binding.playPrevious.setOnClickListener {
             currentPosition?.let {
-                currentPosition = if (it - 1 < 0) tracks.size - 1
+                currentPosition = if (it - 1 < 0) viewModel.tracks.size - 1
                 else it - 1
             }
             playCurrentTrack()
@@ -215,7 +199,7 @@ class TracksLauncherFragment : Fragment() {
     @OptIn(UnstableApi::class)
     private fun playCurrentTrack(isPlaying: Boolean? = null, seekTo: Long = 0L) {
         val currentTrack: TrackUi? = currentPosition?.let {
-            tracks[it]
+            viewModel.tracks[it]
         }
         player.stop()
         player.clearMediaItems()
@@ -291,12 +275,12 @@ class TracksLauncherFragment : Fragment() {
     @OptIn(UnstableApi::class)
     override fun onStop() {
         super.onStop()
-        if (::player.isInitialized && currentPosition in tracks.indices && startService) {
+        if (::player.isInitialized && currentPosition in viewModel.tracks.indices && startService) {
             val resumePosition = player.currentPosition
 
             val intent = Intent(requireContext(), MusicPlayerService::class.java).apply {
                 action = null
-                putExtra(TRACKS_LIST, Gson().toJson(tracks))
+                putExtra(TRACKS_LIST, Gson().toJson(viewModel.tracks))
                 putExtra(CURRENT_POSITION, currentPosition)
                 putExtra(SEEK_TO, resumePosition)
                 putExtra(IS_PLAYING, player.isPlaying)
